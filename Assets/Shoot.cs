@@ -10,28 +10,45 @@ public class Shoot : MonoBehaviour
     public GameObject target;
     float speed = 15;
     float turnSpeed = 2;
+
+    bool canShoot = true;
     void Start()
     {
 
     }
-
+    void ResetShoot()
+    {
+        canShoot = true;
+    }
     void Fire()
     {
-        GameObject shell = Instantiate(shellPrefab, ShellSpawnPos.transform.position, ShellSpawnPos.transform.rotation);
+        if (canShoot)
+        {
+            GameObject shell = Instantiate(shellPrefab, ShellSpawnPos.transform.position, ShellSpawnPos.transform.rotation);
+            shell.GetComponent<Rigidbody>().velocity = this.transform.forward * speed;
+            canShoot = false;
+            Invoke("ResetShoot", 0.5f);
+        }
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Fire();
 
-        }
+
+
+
         Vector3 direction = (target.transform.position - ShellSpawnPos.transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
+        float? angle = RotateTurret();
+        if (angle != null && Vector3.Angle(direction, parent.transform.forward) < 10)
+        {
+            Fire();
+        }
+
+
     }
 
     float? CalculateAngle(bool low)
@@ -63,6 +80,17 @@ public class Shoot : MonoBehaviour
             return null;
         }
 
+    }
+
+    float? RotateTurret()
+    {
+        //if you want to shoot at the highest angle possible change to false
+        float? angle = CalculateAngle(true);
+        if (angle != null)
+        {
+            this.transform.localEulerAngles = new Vector3(360f - (float)angle, 0, 0);
+        }
+        return angle;
     }
 }
 

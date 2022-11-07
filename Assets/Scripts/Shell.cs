@@ -5,6 +5,7 @@ using UnityEngine;
 public class Shell : MonoBehaviour
 {
     public GameObject explosion;
+    Rigidbody rb;
     /* float mass = 10;
      float force = 200;
      float acceleration;
@@ -26,6 +27,7 @@ public class Shell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
 
     }
 
@@ -38,6 +40,7 @@ public class Shell : MonoBehaviour
         speedY += gAccel * Time.deltaTime;
         this.transform.Translate(0, speedY, speedZ);
         force = 0;*/
+        this.transform.forward = rb.velocity;
     }
 }
 
