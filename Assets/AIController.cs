@@ -17,6 +17,9 @@ public class AIController : MonoBehaviour
         agent.SetDestination(goalLocations[i].transform.position);
         anim = GetComponent<Animator>();
         anim.SetTrigger("isWalking");
+        anim.SetFloat("wOffset", Random.Range(0.0f, 1.0f));
+        float sm = Random.Range(0.5f, 2.0f);
+        anim.SetFloat("speedMult", sm);
     }
     /// <summary>
     /// Update is called every frame, if the MonoBehaviour is enabled.
