@@ -1,24 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FollowWP : MonoBehaviour
 {
+
     public GameObject[] waypoints;
-    public int currentWP = 0;
+
+    int currentWP = 0;
+
     public float speed = 10.0f;
+
     public float rotSpeed = 10.0f;
-    // Start is called before the first frame update
+
+    public float lookAhead = 10.0f;
+
+
+    GameObject tracker;
+
     void Start()
     {
 
+
+        tracker = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+
+        DestroyImmediate(tracker.GetComponent<Collider>());
+
+        tracker.GetComponent<MeshRenderer>().enabled = false;
+
+        tracker.transform.position = this.transform.position;
+        tracker.transform.rotation = this.transform.rotation;
     }
 
-    // Update is called once per frame
-    void Update()
+    void ProcessTracker()
     {
 
-        if (Vector3.Distance(waypoints[currentWP].transform.position, transform.position) < 3.0f)
+        if (Vector3.Distance(tracker.transform.position, this.transform.position) > lookAhead) return;
+
+        if (Vector3.Distance(tracker.transform.position, waypoints[currentWP].transform.position) < 3.0f)
         {
             currentWP++;
         }
@@ -26,12 +43,18 @@ public class FollowWP : MonoBehaviour
         {
             currentWP = 0;
         }
-        //transform.LookAt(waypoints[currentWP].transform.position);
-        Quaternion lookatWP = Quaternion.LookRotation(waypoints[currentWP].transform.position - transform.position);
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookatWP, Time.deltaTime * rotSpeed);
 
-        transform.Translate(0, 0, speed * Time.deltaTime);
+        tracker.transform.LookAt(waypoints[currentWP].transform);
+        tracker.transform.Translate(0.0f, 0.0f, (speed + 20.0f) * Time.deltaTime);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ProcessTracker();
+        Quaternion lookAtWP = Quaternion.LookRotation(tracker.transform.position - this.transform.position);
+        this.transform.rotation = Quaternion.Slerp(this.transform.rotation, lookAtWP, rotSpeed * Time.deltaTime);
+        this.transform.Translate(0.0f, 0.0f, speed * Time.deltaTime);
     }
 }
-
